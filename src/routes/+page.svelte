@@ -1,7 +1,6 @@
 <script lang="ts">
 import type { PageData } from "./$types";
-import type { ImageItem } from "$lib/types";
-
+type ImageItem = PageData["photos"][number];
 let { data }: { data: PageData } = $props();
 </script>
 
@@ -12,9 +11,9 @@ let { data }: { data: PageData } = $props();
 
   {#snippet figure(image: ImageItem)}
   <div class="flex gap-2 px-8 pt-2">
-    <div class="flex-2 min-w-0">
+    <a href="/photo/{image.slug}" class="flex-2 min-w-0">
      	<img class="max-w-full h-auto block" src={image.image} alt={image.title} />
-    </div>
+    </a>
     <div class="flex flex-col gap-1 flex-1 min-w-0 p-4">
       <h2 class="text-lg">{image.title.toUpperCase()}</h2>
       <h3 class="text-sm">{image.make} {image.camera}</h3>
