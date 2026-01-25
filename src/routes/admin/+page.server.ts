@@ -133,7 +133,7 @@ export const actions: Actions = {
 				)
 				.run();
 
-			throw redirect(302, `/photo/${slug}`);
+			return { success: true };
 		} catch (err) {
 			if (isRedirect(err)) {
 				throw err; // Re-throw redirects

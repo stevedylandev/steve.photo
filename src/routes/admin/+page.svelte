@@ -131,6 +131,27 @@
 		editingId = null;
 		editingTitle = "";
 	}
+
+	function resetUploadForm() {
+		selectedFile = null;
+		if (previewUrl) {
+			URL.revokeObjectURL(previewUrl);
+			previewUrl = null;
+		}
+		thumbnailBlob = null;
+		title = "";
+		date = "";
+		camera = "";
+		lens = "";
+		aperture = "";
+		exposure = "";
+		focalLength = "";
+		iso = "";
+		make = "";
+		if (fileInput) {
+			fileInput.value = "";
+		}
+	}
 </script>
 
 <svelte:head>
@@ -138,7 +159,7 @@
 </svelte:head>
 
 <div class="min-h-screen p-4 md:p-8">
-	<div class="max-w-4xl mx-auto">
+	<div class="max-w-4xl mx-auto space-y-4">
 		<div class="flex items-center justify-between mb-8">
 			<h1 class="text-2xl font-bold">Admin</h1>
 			<a
@@ -151,7 +172,7 @@
 
 		<!-- Upload Section -->
 		<section>
-			<h2 class="text-xl font-semibold mb-4">Upload New Photo</h2>
+			<h2 class="text-lg font-semibold mb-3">Upload New Photo</h2>
 
 			<form
 				method="POST"
@@ -162,15 +183,17 @@
 					if (thumbnailBlob) {
 						formData.append("thumbnail", thumbnailBlob, "thumbnail.jpg");
 					}
-					return async ({ update }) => {
+					return async ({ result, update }) => {
 						isLoading = false;
+						if (result.type === "success") {
+							resetUploadForm();
+						}
 						await update();
 					};
 				}}
-				class="space-y-6"
+				class="space-y-4"
 			>
 				<div>
-					<label for="file" class="block text-sm mb-2">Image</label>
 					<input
 						type="file"
 						id="file"
@@ -179,137 +202,62 @@
 						required
 						bind:this={fileInput}
 						onchange={handleFileSelect}
-						class="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded focus:outline-none focus:border-zinc-500 file:mr-4 file:py-1 file:px-4 file:rounded file:border-0 file:bg-zinc-700 file:text-white file:cursor-pointer"
+						class="w-full text-sm bg-zinc-900 border border-zinc-700 rounded focus:outline-none focus:border-zinc-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:bg-zinc-700 file:text-white file:text-sm file:cursor-pointer"
 					/>
 				</div>
 
 				{#if previewUrl}
-					<div class="relative">
+					<div class="flex gap-4">
 						<img
 							src={previewUrl}
 							alt="Preview"
-							class="w-full max-h-64 object-contain rounded bg-zinc-900"
+							class="w-32 h-32 object-cover rounded bg-zinc-900 shrink-0"
 						/>
+						<div class="flex-1 space-y-3">
+							<div>
+								<label for="title" class="block text-xs text-zinc-400 mb-1">Title</label>
+								<input
+									type="text"
+									id="title"
+									name="title"
+									required
+									bind:value={title}
+									class="w-full px-3 py-1.5 text-sm bg-zinc-900 border border-zinc-700 rounded focus:outline-none focus:border-zinc-500"
+								/>
+							</div>
+
+							{#if date || camera || lens}
+								<div class="text-xs text-zinc-500 space-y-0.5">
+									{#if date}<p>{date}</p>{/if}
+									{#if make || camera}<p>{[make, camera].filter(Boolean).join(" ")}</p>{/if}
+									{#if lens}<p>{lens}</p>{/if}
+									{#if aperture || exposure || focalLength || iso}
+										<p>{[aperture, exposure, focalLength, iso ? `ISO ${iso}` : ""].filter(Boolean).join(" | ")}</p>
+									{/if}
+								</div>
+							{/if}
+
+							<!-- Hidden inputs for form submission -->
+							<input type="hidden" name="date" value={date} />
+							<input type="hidden" name="make" value={make} />
+							<input type="hidden" name="camera" value={camera} />
+							<input type="hidden" name="lens" value={lens} />
+							<input type="hidden" name="aperture" value={aperture} />
+							<input type="hidden" name="exposure" value={exposure} />
+							<input type="hidden" name="focalLength" value={focalLength} />
+							<input type="hidden" name="iso" value={iso} />
+						</div>
 					</div>
 				{/if}
 
-				<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-					<div>
-						<label for="title" class="block text-sm mb-2">Title *</label>
-						<input
-							type="text"
-							id="title"
-							name="title"
-							required
-							bind:value={title}
-							class="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded focus:outline-none focus:border-zinc-500"
-						/>
-					</div>
-
-					<div>
-						<label for="date" class="block text-sm mb-2">Date *</label>
-						<input
-							type="date"
-							id="date"
-							name="date"
-							required
-							bind:value={date}
-							class="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded focus:outline-none focus:border-zinc-500"
-						/>
-					</div>
-				</div>
-
-				<div class="border-t border-zinc-800 pt-6">
-					<h3 class="text-lg font-medium mb-4">EXIF Data</h3>
-
-					<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-						<div>
-							<label for="make" class="block text-sm mb-2">Make</label>
-							<input
-								type="text"
-								id="make"
-								name="make"
-								bind:value={make}
-								class="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded focus:outline-none focus:border-zinc-500"
-							/>
-						</div>
-
-						<div>
-							<label for="camera" class="block text-sm mb-2">Camera</label>
-							<input
-								type="text"
-								id="camera"
-								name="camera"
-								bind:value={camera}
-								class="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded focus:outline-none focus:border-zinc-500"
-							/>
-						</div>
-
-						<div>
-							<label for="lens" class="block text-sm mb-2">Lens</label>
-							<input
-								type="text"
-								id="lens"
-								name="lens"
-								bind:value={lens}
-								class="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded focus:outline-none focus:border-zinc-500"
-							/>
-						</div>
-
-						<div>
-							<label for="aperture" class="block text-sm mb-2">Aperture</label>
-							<input
-								type="text"
-								id="aperture"
-								name="aperture"
-								bind:value={aperture}
-								class="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded focus:outline-none focus:border-zinc-500"
-							/>
-						</div>
-
-						<div>
-							<label for="exposure" class="block text-sm mb-2">Exposure</label>
-							<input
-								type="text"
-								id="exposure"
-								name="exposure"
-								bind:value={exposure}
-								class="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded focus:outline-none focus:border-zinc-500"
-							/>
-						</div>
-
-						<div>
-							<label for="focalLength" class="block text-sm mb-2">Focal Length</label>
-							<input
-								type="text"
-								id="focalLength"
-								name="focalLength"
-								bind:value={focalLength}
-								class="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded focus:outline-none focus:border-zinc-500"
-							/>
-						</div>
-
-						<div>
-							<label for="iso" class="block text-sm mb-2">ISO</label>
-							<input
-								type="text"
-								id="iso"
-								name="iso"
-								bind:value={iso}
-								class="w-full px-4 py-2 bg-zinc-900 border border-zinc-700 rounded focus:outline-none focus:border-zinc-500"
-							/>
-						</div>
-					</div>
-				</div>
-
 				{#if form?.error}
-					<p class="text-red-500 text-sm">{form.error}</p>
+					<p class="text-red-500 text-xs">{form.error}</p>
 				{/if}
 
 				<button
 					type="submit"
 					disabled={isLoading || !selectedFile}
-					class="w-full py-3 bg-white text-black font-medium rounded hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+					class="w-full py-2 text-sm bg-white text-black font-medium rounded hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 				>
 					{isLoading ? "Uploading..." : "Upload Photo"}
 				</button>
