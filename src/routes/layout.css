@@ -1,5 +1,5 @@
 @import 'tailwindcss';
 
 html 	{
-  @apply bg-[#121113];
+  @apply bg-[#121113] min-h-screen w-full font-mono text-white;
 }

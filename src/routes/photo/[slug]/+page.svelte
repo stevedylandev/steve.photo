@@ -1,15 +1,15 @@
 <script lang="ts">
-	import type { PageData } from "./$types";
-	let { data }: { data: PageData } = $props();
+import type { PageData } from "./$types";
+let { data }: { data: PageData } = $props();
 </script>
 
-<div class="bg-[#121113] min-h-screen text-white">
+<div class="bg-[#121113] min-h-screen text-white flex flex-col gap-4 pb-4">
 	<div class="fixed bg-[#121113] w-full py-4 px-8">
-		<a href="/" class="text-sm hover:underline">steve.photo</a>
+		<a href="/" class="text-sm hover:underline">steve.photo (go back)</a>
 	</div>
 
 	<div class="flex gap-2 px-8 pt-16">
-		<div class="flex-2 min-w-0">
+		<div class="flex-6 min-w-0">
 			<img class="max-w-full h-auto block" src={data.photo.image} alt={data.photo.title} />
 		</div>
 		<div class="flex flex-col gap-1 flex-1 min-w-0 p-4">
