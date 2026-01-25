@@ -1,0 +1,24 @@
+{
+	"name": "steve-photo-svelte",
+	"main": ".svelte-kit/cloudflare/_worker.js",
+	"compatibility_date": "2026-01-20",
+	"assets": {
+		"binding": "ASSETS",
+		"directory": ".svelte-kit/cloudflare"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "photos-db",
+			"database_id": "e95a2bd9-c313-47b1-ac91-b518781fb3ee",
+			"remote": true
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "PHOTOS",
+			"bucket_name": "steve-photos",
+			"remote": true
+		}
+	]
+}

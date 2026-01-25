@@ -1,6 +1,8 @@
 <script lang="ts">
-  import data from '$lib/data.json';
-  import type { ImageItem } from '$lib/types'
+import type { PageData } from "./$types";
+import type { ImageItem } from "$lib/types";
+
+let { data }: { data: PageData } = $props();
 </script>
 
 <div class="bg-[#121113] min-h-screen text-white">
@@ -30,7 +32,7 @@
   {/snippet}
 
   <div class="flex flex-col gap-2 pt-12">
-    {#each data as image}
+    {#each data.photos as image}
         {@render figure(image)}
     {/each}
   </div>
