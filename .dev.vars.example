@@ -1,0 +1,9 @@
+# Copy this file to .dev.vars and fill in your values
+# These are used for local development with `wrangler dev` or `bun run dev`
+
+# Generate a secure random string for SESSION_SECRET (e.g., `openssl rand -hex 32`)
+SESSION_SECRET=your-session-secret-here
+
+# Generate ADMIN_PASSWORD_HASH using the hash-password.ts script:
+# bun run scripts/hash-password.ts <your-password> <session-secret>
+ADMIN_PASSWORD_HASH=your-password-hash-here
