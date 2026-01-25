@@ -3,8 +3,36 @@ import { fail, redirect, isRedirect } from "@sveltejs/kit";
 
 const R2_BASE_URL = "https://r2.steve.photo";
 
-export const load: PageServerLoad = async () => {
-	return {};
+type PhotoRow = {
+	id: number;
+	slug: string;
+	title: string;
+	date: string;
+	image_key: string;
+	thumb_key: string;
+};
+
+export const load: PageServerLoad = async ({ platform }) => {
+	const db = platform?.env?.DB;
+	if (!db) {
+		return { photos: [] };
+	}
+
+	const result = await db
+		.prepare(
+			"SELECT id, slug, title, date, image_key, thumb_key FROM photos ORDER BY date DESC",
+		)
+		.all<PhotoRow>();
+
+	const photos = result.results.map((row: PhotoRow) => ({
+		id: row.id,
+		slug: row.slug,
+		title: row.title,
+		date: row.date,
+		thumb: `${R2_BASE_URL}/${row.thumb_key}`,
+	}));
+
+	return { photos };
 };
 
 export const actions: Actions = {
@@ -113,6 +141,86 @@ export const actions: Actions = {
 			const errorMessage = err instanceof Error ? err.message : String(err);
 			console.error("Upload error:", errorMessage, err);
 			return fail(500, { error: `Failed to upload photo: ${errorMessage}` });
+		}
+	},
+
+	edit: async ({ request, platform, locals }) => {
+		if (!locals.user?.authenticated) {
+			return fail(401, { error: "Unauthorized" });
+		}
+
+		const db = platform?.env?.DB;
+		if (!db) {
+			return fail(500, { error: "Server configuration error" });
+		}
+
+		const formData = await request.formData();
+		const id = formData.get("id") as string;
+		const title = formData.get("title") as string;
+
+		if (!id || !title) {
+			return fail(400, { error: "ID and title are required" });
+		}
+
+		try {
+			await db
+				.prepare("UPDATE photos SET title = ? WHERE id = ?")
+				.bind(title, parseInt(id, 10))
+				.run();
+
+			return { success: true };
+		} catch (err) {
+			const errorMessage = err instanceof Error ? err.message : String(err);
+			console.error("Edit error:", errorMessage);
+			return fail(500, { error: `Failed to update photo: ${errorMessage}` });
+		}
+	},
+
+	delete: async ({ request, platform, locals }) => {
+		if (!locals.user?.authenticated) {
+			return fail(401, { error: "Unauthorized" });
+		}
+
+		const db = platform?.env?.DB;
+		const bucket = platform?.env?.PHOTOS;
+
+		if (!db || !bucket) {
+			return fail(500, { error: "Server configuration error" });
+		}
+
+		const formData = await request.formData();
+		const id = formData.get("id") as string;
+
+		if (!id) {
+			return fail(400, { error: "ID is required" });
+		}
+
+		try {
+			// Get photo details first to delete from R2
+			const photo = await db
+				.prepare("SELECT image_key, thumb_key FROM photos WHERE id = ?")
+				.bind(parseInt(id, 10))
+				.first<{ image_key: string; thumb_key: string }>();
+
+			if (!photo) {
+				return fail(404, { error: "Photo not found" });
+			}
+
+			// Delete from R2
+			await bucket.delete(photo.image_key);
+			await bucket.delete(photo.thumb_key);
+
+			// Delete from database
+			await db
+				.prepare("DELETE FROM photos WHERE id = ?")
+				.bind(parseInt(id, 10))
+				.run();
+
+			return { success: true };
+		} catch (err) {
+			const errorMessage = err instanceof Error ? err.message : String(err);
+			console.error("Delete error:", errorMessage);
+			return fail(500, { error: `Failed to delete photo: ${errorMessage}` });
 		}
 	},
 };
