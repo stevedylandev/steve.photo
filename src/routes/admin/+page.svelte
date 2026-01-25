@@ -155,13 +155,15 @@
 </script>
 
 <svelte:head>
-	<title>Admin - Upload Photo</title>
+	<title>Admin</title>
 </svelte:head>
+
+
 
 <div class="min-h-screen p-4 md:p-8">
 	<div class="max-w-4xl mx-auto space-y-4">
 		<div class="flex items-center justify-between mb-8">
-			<h1 class="text-2xl font-bold">Admin</h1>
+			<a href="/" class="hover:text-white transition-colors text-sm text-zinc-400">&larr; Back to gallery</a>
 			<a
 				href="/api/logout"
 				class="text-sm text-zinc-400 hover:text-white transition-colors"
@@ -377,8 +379,5 @@
 		{/if}
 
 
-		<p class="mt-8 text-center text-sm text-zinc-500">
-			<a href="/" class="hover:text-white transition-colors">&larr; Back to gallery</a>
-		</p>
 	</div>
 </div>

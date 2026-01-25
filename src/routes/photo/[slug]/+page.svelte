@@ -4,11 +4,11 @@ let { data }: { data: PageData } = $props();
 </script>
 
 <div class="bg-[#121113] min-h-screen text-white flex flex-col gap-4 pb-4">
-	<div class="fixed bg-[#121113] w-full py-4 px-8">
+	<div class="fixed bg-[#121113] w-full py-4 sm:px-8 px-4">
 		<a href="/" class="text-sm hover:underline">steve.photo (go back)</a>
 	</div>
 
-	<div class="flex gap-2 px-8 pt-16">
+	<div class="flex sm:flex-row flex-col gap-2 sm:px-8 px-4 pt-16">
 		<div class="flex-6 min-w-0">
 			<img class="max-w-full h-auto block" src={data.photo.image} alt={data.photo.title} />
 		</div>

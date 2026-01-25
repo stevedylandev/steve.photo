@@ -5,12 +5,12 @@ let { data }: { data: PageData } = $props();
 </script>
 
 <div class="bg-[#121113] min-h-screen text-white">
-  <div class="fixed bg-[#121113] w-full py-4 px-8">
+  <div class="fixed bg-[#121113] w-full py-4 sm:px-8 px-4">
     <h1 class="text-sm">steve.photo</h1>
   </div>
 
   {#snippet figure(image: ImageItem)}
-  <div class="flex gap-2 px-8 pt-2">
+  <div class="flex sm:flex-row flex-col gap-2 sm:px-8 px-4 pt-2">
     <a href="/photo/{image.slug}" class="flex-2 min-w-0">
      	<img class="max-w-full h-auto block" src={image.image} alt={image.title} />
     </a>
