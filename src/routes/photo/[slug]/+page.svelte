@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { PageData } from "./$types";
+  import ProgressiveImage from "$lib/components/ProgressiveImage.svelte";
   let { data }: { data: PageData } = $props();
 </script>
 
@@ -10,7 +11,12 @@
 
   <div class="flex sm:flex-row flex-col gap-2 sm:px-8 px-4 pt-16">
     <div class="flex-6 min-w-0">
-      <img class="max-w-full h-auto block" src={data.photo.image} alt={data.photo.title} />
+      <ProgressiveImage
+        class="max-w-full h-auto block"
+        src={data.photo.image}
+        thumb={data.photo.thumb}
+        alt={data.photo.title}
+      />
     </div>
     <div class="flex flex-col p-4 flex-1 min-w-0 justify-between">
       <div class="flex flex-col gap-1 flex-1 min-w-0">
