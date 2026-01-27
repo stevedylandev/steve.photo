@@ -1,42 +1,56 @@
-# sv
+# steve.photo
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+![cover](./cover.jpg)
 
-## Creating a project
+My personal photography website built with [SvelteKit](https://svelte.dev)
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Features
 
-```sh
-# create a new project
-npx sv create my-app
+- Photo gallery with infinite scroll and progressive image loading
+- Automatic EXIF metadata extraction (camera, lens, aperture, ISO, etc.)
+- Admin panel for uploading, editing, and deleting photos
+- RSS feed for content syndication
+- SEO optimized with dynamic OpenGraph and Twitter card metadata
+
+## Quickstart
+
+```bash
+# Install dependencies
+bun install
+
+# Run development server
+bun run dev
+
+# Build for production
+bun run build
+
+# Deploy to Cloudflare
+bun run deploy
 ```
 
-To recreate this project with the same configuration:
+## Structure
 
-```sh
-# recreate this project
-bun x sv create --template minimal --types ts --add tailwindcss="plugins:none" --install bun steve-photo-svelte
+```
+src/
+├── lib/
+│   ├── auth.ts              # HMAC session management
+│   ├── feed.ts              # RSS feed photo retrieval
+│   ├── types.ts             # TypeScript interfaces
+│   └── components/
+│       └── ProgressiveImage.svelte
+├── routes/
+│   ├── +page.svelte         # Gallery with infinite scroll
+│   ├── photo/[slug]/        # Photo detail page
+│   ├── admin/               # Protected upload panel
+│   ├── login/               # Authentication
+│   ├── api/photos/          # Pagination endpoint
+│   └── rss.xml/             # RSS feed
+└── hooks.server.ts          # Session verification
 ```
 
-## Developing
+## Stack
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```sh
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+- **SvelteKit** - Full-stack framework handling routing, SSR, and API endpoints
+- **Cloudflare Workers** - Edge runtime for serverless deployment
+- **D1 Database** - SQLite database for storing photo metadata
+- **R2 Storage** - Object storage for hosting images and thumbnails
