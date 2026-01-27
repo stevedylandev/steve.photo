@@ -1,0 +1,32 @@
+import type { ImageItem } from "$lib/types";
+
+const R2_BASE_URL = "https://r2.steve.photo";
+
+export async function getPhotos(platform: App.Platform | undefined): Promise<ImageItem[]> {
+  const db = platform?.env?.DB;
+
+  if (!db) {
+    return [];
+  }
+
+  const result = await db.prepare("SELECT * FROM photos ORDER BY date DESC").all();
+
+  const photos: ImageItem[] = result.results.map((row: Record<string, unknown>) => ({
+    slug: row.slug as string,
+    title: row.title as string,
+    date: row.date as string,
+    image: `${R2_BASE_URL}/${row.image_key}`,
+    thumb: `${R2_BASE_URL}/${row.thumb_key}`,
+    type: row.type as string,
+    camera: row.camera as string,
+    lens: row.lens as string,
+    aperture: row.aperture as string,
+    exposure: row.exposure as string,
+    focalLength: row.focal_length as string,
+    iso: row.iso as string,
+    make: row.make as string,
+    tags: [],
+  }));
+
+  return photos;
+}
