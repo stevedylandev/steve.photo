@@ -61,7 +61,7 @@
   }
 
   .progressive-image {
-    transition: filter 0.4s ease-out;
+    transition: filter 0.6s ease-out;
   }
 
   .progressive-loading {
