@@ -4,6 +4,30 @@
   let { data }: { data: PageData } = $props();
 </script>
 
+<svelte:head>
+  <title>{data.photo.title} | steve.photo</title>
+  <meta
+    name="description"
+    content="{data.photo.title} - Shot on {data.photo.make} {data.photo.camera}"
+  />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="{data.photo.title} | steve.photo" />
+  <meta property="og:url" content="https://steve.photo/photo/{data.photo.slug}" />
+  <meta
+    property="og:description"
+    content="{data.photo.title} - Shot on {data.photo.make} {data.photo.camera}"
+  />
+  <meta property="og:image" content={data.photo.image} />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="{data.photo.title} | steve.photo" />
+  <meta
+    name="twitter:description"
+    content="{data.photo.title} - Shot on {data.photo.make} {data.photo.camera}"
+  />
+  <meta name="twitter:image" content={data.photo.image} />
+  <link rel="canonical" href="https://steve.photo/photo/{data.photo.slug}" />
+</svelte:head>
+
 <div class="bg-[#121113] min-h-screen text-white flex flex-col gap-4 pb-4">
   <div class="fixed bg-[#121113] w-full py-4 sm:px-8 px-4">
     <a href="/" class="text-sm hover:underline">steve.photo</a>
