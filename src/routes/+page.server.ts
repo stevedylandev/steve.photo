@@ -4,10 +4,18 @@ import type { ImageItem } from "$lib";
 // R2 public URL - update this after enabling public access on your bucket
 const R2_BASE_URL = "https://r2.steve.photo";
 
+const PAGE_SIZE = 15;
+
 export const load: PageServerLoad = async ({ platform }) => {
   const db = platform?.env?.DB;
 
-  const result = await db.prepare("SELECT * FROM photos ORDER BY date DESC").all();
+  const result = await db
+    .prepare("SELECT * FROM photos ORDER BY date DESC LIMIT ?")
+    .bind(PAGE_SIZE)
+    .all();
+
+  const countResult = await db.prepare("SELECT COUNT(*) as total FROM photos").first();
+  const total = (countResult?.total as number) || 0;
 
   const photos: ImageItem[] = result.results.map((row: Record<string, unknown>) => ({
     slug: row.slug,
@@ -25,5 +33,5 @@ export const load: PageServerLoad = async ({ platform }) => {
     make: row.make,
   }));
 
-  return { photos };
+  return { photos, total, pageSize: PAGE_SIZE };
 };

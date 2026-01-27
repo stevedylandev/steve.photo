@@ -3,6 +3,49 @@
   import ProgressiveImage from "$lib/components/ProgressiveImage.svelte";
   type ImageItem = PageData["photos"][number];
   let { data }: { data: PageData } = $props();
+
+  let photos = $state<ImageItem[]>([]);
+  let loading = $state(false);
+  let hasMore = $derived(photos.length < data.total);
+
+  $effect(() => {
+    photos = data.photos;
+  });
+  let sentinel: HTMLDivElement;
+
+  async function loadMore() {
+    if (loading || !hasMore) return;
+    loading = true;
+
+    try {
+      const response = await fetch(`/api/photos?offset=${photos.length}`);
+      const result = await response.json();
+      if (result.photos.length > 0) {
+        photos = [...photos, ...result.photos];
+      }
+    } catch (error) {
+      console.error("Failed to load more photos:", error);
+    } finally {
+      loading = false;
+    }
+  }
+
+  $effect(() => {
+    if (!sentinel) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !loading) {
+          loadMore();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+
+    observer.observe(sentinel);
+
+    return () => observer.disconnect();
+  });
 </script>
 
 <div class="bg-[#121113] min-h-screen text-white">
@@ -36,8 +79,16 @@
   {/snippet}
 
   <div class="flex flex-col gap-2 pt-12">
-    {#each data.photos as image}
+    {#each photos as image}
       {@render figure(image)}
     {/each}
+
+    <div bind:this={sentinel} class="h-4"></div>
+
+    {#if loading}
+      <div class="flex justify-center py-8">
+        <div class="text-neutral-400 text-sm">Loading...</div>
+      </div>
+    {/if}
   </div>
 </div>
