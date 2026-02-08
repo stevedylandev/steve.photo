@@ -1,7 +1,14 @@
 <script lang="ts">
-  import type { PageData } from "./$types";
-  import ProgressiveImage from "$lib/components/ProgressiveImage.svelte";
-  let { data }: { data: PageData } = $props();
+import type { PageData } from "./$types";
+import { goto } from "$app/navigation";
+import ProgressiveImage from "$lib/components/ProgressiveImage.svelte";
+let { data }: { data: PageData } = $props();
+
+function handleKeydown(event) {
+	if (event.key === "Escape") {
+		history.back();
+	}
+}
 </script>
 
 <svelte:head>
@@ -27,6 +34,8 @@
   <meta name="twitter:image" content={data.photo.image} />
   <link rel="canonical" href="https://steve.photo/photo/{data.photo.slug}" />
 </svelte:head>
+
+<svelte:window on:keydown={handleKeydown} />
 
 <div class="bg-[#121113] min-h-screen text-white flex flex-col gap-4 pb-4">
   <div class="fixed bg-[#121113] w-full py-4 sm:px-8 px-4">
