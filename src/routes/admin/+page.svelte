@@ -1,183 +1,185 @@
 <script lang="ts">
-	import { enhance } from "$app/forms";
-	import exifr from "exifr";
+import { enhance } from "$app/forms";
+import exifr from "exifr";
 
-	let { data, form } = $props();
+let { data, form } = $props();
 
-	let fileInput = $state<HTMLInputElement | null>(null);
-	let selectedFile = $state<File | null>(null);
-	let previewUrl = $state<string | null>(null);
-	let thumbnailBlob = $state<Blob | null>(null);
-	let blurData = $state<string>("");
+let fileInput = $state<HTMLInputElement | null>(null);
+let selectedFile = $state<File | null>(null);
+let previewUrl = $state<string | null>(null);
+let thumbnailBlob = $state<Blob | null>(null);
+let blurData = $state<string>("");
 
-	let title = $state("");
-	let date = $state("");
-	let camera = $state("");
-	let lens = $state("");
-	let aperture = $state("");
-	let exposure = $state("");
-	let focalLength = $state("");
-	let iso = $state("");
-	let make = $state("");
+let title = $state("");
+let date = $state("");
+let camera = $state("");
+let lens = $state("");
+let aperture = $state("");
+let exposure = $state("");
+let focalLength = $state("");
+let iso = $state("");
+let make = $state("");
 
-	let isLoading = $state(false);
-	let editingId = $state<number | null>(null);
-	let editingTitle = $state("");
-	let deleteConfirmId = $state<number | null>(null);
+let isLoading = $state(false);
+let editingId = $state<number | null>(null);
+let editingTitle = $state("");
+let deleteConfirmId = $state<number | null>(null);
 
-	async function handleFileSelect(event: Event) {
-		const input = event.target as HTMLInputElement;
-		const file = input.files?.[0];
-		if (!file) return;
+async function handleFileSelect(event: Event) {
+	const input = event.target as HTMLInputElement;
+	const file = input.files?.[0];
+	if (!file) return;
 
-		selectedFile = file;
-		previewUrl = URL.createObjectURL(file);
+	selectedFile = file;
+	previewUrl = URL.createObjectURL(file);
 
-		// Auto-populate title from filename
-		const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
-		title = nameWithoutExt.replace(/[-_]/g, " ");
+	// Auto-populate title from filename
+	const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+	title = nameWithoutExt.replace(/[-_]/g, " ");
 
-		// Extract EXIF data
-		try {
-			const exif = await exifr.parse(file, {
-				pick: [
-					"DateTimeOriginal",
-					"Model",
-					"LensModel",
-					"FNumber",
-					"ExposureTime",
-					"FocalLength",
-					"ISO",
-					"Make",
-				],
-			});
+	// Extract EXIF data
+	try {
+		const exif = await exifr.parse(file, {
+			pick: [
+				"DateTimeOriginal",
+				"Model",
+				"LensModel",
+				"FNumber",
+				"ExposureTime",
+				"FocalLength",
+				"ISO",
+				"Make",
+			],
+		});
 
-			if (exif) {
-				if (exif.DateTimeOriginal) {
-					const d = new Date(exif.DateTimeOriginal);
-					date = d.toISOString().split("T")[0];
-				}
-				if (exif.Model) camera = exif.Model;
-				if (exif.LensModel) lens = exif.LensModel;
-				if (exif.FNumber) aperture = `f/${exif.FNumber}`;
-				if (exif.ExposureTime) {
-					exposure =
-						exif.ExposureTime < 1 ? `1/${Math.round(1 / exif.ExposureTime)}s` : `${exif.ExposureTime}s`;
-				}
-				if (exif.FocalLength) focalLength = `${exif.FocalLength}mm`;
-				if (exif.ISO) iso = String(exif.ISO);
-				if (exif.Make) make = exif.Make;
+		if (exif) {
+			if (exif.DateTimeOriginal) {
+				const d = new Date(exif.DateTimeOriginal);
+				date = d.toISOString().split("T")[0];
 			}
-		} catch (err) {
-			console.error("Failed to read EXIF data:", err);
+			if (exif.Model) camera = exif.Model;
+			if (exif.LensModel) lens = exif.LensModel;
+			if (exif.FNumber) aperture = `f/${exif.FNumber}`;
+			if (exif.ExposureTime) {
+				exposure =
+					exif.ExposureTime < 1
+						? `1/${Math.round(1 / exif.ExposureTime)}s`
+						: `${exif.ExposureTime}s`;
+			}
+			if (exif.FocalLength) focalLength = `${exif.FocalLength}mm`;
+			if (exif.ISO) iso = String(exif.ISO);
+			if (exif.Make) make = exif.Make;
 		}
-
-		// Generate thumbnail and blur placeholder
-		await generateThumbnail(file);
-		await generateBlurData(file);
+	} catch (err) {
+		console.error("Failed to read EXIF data:", err);
 	}
 
-	async function generateThumbnail(file: File): Promise<void> {
-		return new Promise((resolve) => {
-			const img = new Image();
-			img.onload = () => {
-				const maxSize = 400;
-				let width = img.width;
-				let height = img.height;
+	// Generate thumbnail and blur placeholder
+	await generateThumbnail(file);
+	await generateBlurData(file);
+}
 
-				if (width > height) {
-					if (width > maxSize) {
-						height = (height * maxSize) / width;
-						width = maxSize;
-					}
-				} else {
-					if (height > maxSize) {
-						width = (width * maxSize) / height;
-						height = maxSize;
-					}
+async function generateThumbnail(file: File): Promise<void> {
+	return new Promise((resolve) => {
+		const img = new Image();
+		img.onload = () => {
+			const maxSize = 400;
+			let width = img.width;
+			let height = img.height;
+
+			if (width > height) {
+				if (width > maxSize) {
+					height = (height * maxSize) / width;
+					width = maxSize;
 				}
-
-				const canvas = document.createElement("canvas");
-				canvas.width = width;
-				canvas.height = height;
-
-				const ctx = canvas.getContext("2d");
-				if (ctx) {
-					ctx.drawImage(img, 0, 0, width, height);
-					canvas.toBlob(
-						(blob) => {
-							thumbnailBlob = blob;
-							resolve();
-						},
-						"image/jpeg",
-						0.8
-					);
-				} else {
-					resolve();
+			} else {
+				if (height > maxSize) {
+					width = (width * maxSize) / height;
+					height = maxSize;
 				}
-			};
-			img.src = URL.createObjectURL(file);
-		});
-	}
+			}
 
-	async function generateBlurData(file: File): Promise<void> {
-		return new Promise((resolve) => {
-			const img = new Image();
-			img.onload = () => {
-				const targetWidth = 20;
-				const aspectRatio = img.height / img.width;
-				const targetHeight = Math.round(targetWidth * aspectRatio);
+			const canvas = document.createElement("canvas");
+			canvas.width = width;
+			canvas.height = height;
 
-				const canvas = document.createElement("canvas");
-				canvas.width = targetWidth;
-				canvas.height = targetHeight;
-
-				const ctx = canvas.getContext("2d");
-				if (ctx) {
-					ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
-					blurData = canvas.toDataURL("image/jpeg", 0.3);
-				}
+			const ctx = canvas.getContext("2d");
+			if (ctx) {
+				ctx.drawImage(img, 0, 0, width, height);
+				canvas.toBlob(
+					(blob) => {
+						thumbnailBlob = blob;
+						resolve();
+					},
+					"image/jpeg",
+					0.8,
+				);
+			} else {
 				resolve();
-			};
-			img.src = URL.createObjectURL(file);
-		});
-	}
+			}
+		};
+		img.src = URL.createObjectURL(file);
+	});
+}
 
-	function handleSubmit() {
-		isLoading = true;
-	}
+async function generateBlurData(file: File): Promise<void> {
+	return new Promise((resolve) => {
+		const img = new Image();
+		img.onload = () => {
+			const targetWidth = 20;
+			const aspectRatio = img.height / img.width;
+			const targetHeight = Math.round(targetWidth * aspectRatio);
 
-	function startEdit(photo: { id: number; title: string }) {
-		editingId = photo.id;
-		editingTitle = photo.title;
-	}
+			const canvas = document.createElement("canvas");
+			canvas.width = targetWidth;
+			canvas.height = targetHeight;
 
-	function cancelEdit() {
-		editingId = null;
-		editingTitle = "";
-	}
+			const ctx = canvas.getContext("2d");
+			if (ctx) {
+				ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+				blurData = canvas.toDataURL("image/jpeg", 0.3);
+			}
+			resolve();
+		};
+		img.src = URL.createObjectURL(file);
+	});
+}
 
-	function resetUploadForm() {
-		selectedFile = null;
-		if (previewUrl) {
-			URL.revokeObjectURL(previewUrl);
-			previewUrl = null;
-		}
-		thumbnailBlob = null;
-		blurData = "";
-		title = "";
-		date = "";
-		camera = "";
-		lens = "";
-		aperture = "";
-		exposure = "";
-		focalLength = "";
-		iso = "";
-		make = "";
-		if (fileInput) {
-			fileInput.value = "";
-		}
+function handleSubmit() {
+	isLoading = true;
+}
+
+function startEdit(photo: { id: number; title: string }) {
+	editingId = photo.id;
+	editingTitle = photo.title;
+}
+
+function cancelEdit() {
+	editingId = null;
+	editingTitle = "";
+}
+
+function resetUploadForm() {
+	selectedFile = null;
+	if (previewUrl) {
+		URL.revokeObjectURL(previewUrl);
+		previewUrl = null;
 	}
+	thumbnailBlob = null;
+	blurData = "";
+	title = "";
+	date = "";
+	camera = "";
+	lens = "";
+	aperture = "";
+	exposure = "";
+	focalLength = "";
+	iso = "";
+	make = "";
+	if (fileInput) {
+		fileInput.value = "";
+	}
+}
 </script>
 
 <svelte:head>

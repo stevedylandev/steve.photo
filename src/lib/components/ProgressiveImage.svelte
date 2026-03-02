@@ -1,42 +1,42 @@
 <script lang="ts">
-  let {
-    src,
-    thumb,
-    alt,
-    blurData,
-    class: className = "",
-  }: {
-    src: string;
-    thumb: string;
-    alt: string;
-    blurData?: string;
-    class?: string;
-  } = $props();
+let {
+	src,
+	thumb,
+	alt,
+	blurData,
+	class: className = "",
+}: {
+	src: string;
+	thumb: string;
+	alt: string;
+	blurData?: string;
+	class?: string;
+} = $props();
 
-  let loaded = $state(false);
-  let thumbAspect = $state(0);
-  let thumbImg: HTMLImageElement;
+let loaded = $state(false);
+let thumbAspect = $state(0);
+let thumbImg: HTMLImageElement;
 
-  function onThumbLoad() {
-    if (thumbImg.naturalWidth && thumbImg.naturalHeight) {
-      thumbAspect = thumbImg.naturalWidth / thumbImg.naturalHeight;
-    }
-  }
+function onThumbLoad() {
+	if (thumbImg.naturalWidth && thumbImg.naturalHeight) {
+		thumbAspect = thumbImg.naturalWidth / thumbImg.naturalHeight;
+	}
+}
 
-  $effect(() => {
-    loaded = false;
-    const img = new Image();
-    img.onload = () => {
-      loaded = true;
-    };
-    img.src = src;
+$effect(() => {
+	loaded = false;
+	const img = new Image();
+	img.onload = () => {
+		loaded = true;
+	};
+	img.src = src;
 
-    return () => {
-      img.onload = null;
-    };
-  });
+	return () => {
+		img.onload = null;
+	};
+});
 
-  let placeholderSrc = $derived(blurData || thumb);
+let placeholderSrc = $derived(blurData || thumb);
 </script>
 
 <div

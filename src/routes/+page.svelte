@@ -1,67 +1,67 @@
 <script lang="ts">
-  import { browser } from "$app/environment";
-  import type { PageData } from "./$types";
-  import ProgressiveImage from "$lib/components/ProgressiveImage.svelte";
-  type ImageItem = PageData["photos"][number];
-  let { data }: { data: PageData } = $props();
+import { browser } from "$app/environment";
+import type { PageData } from "./$types";
+import ProgressiveImage from "$lib/components/ProgressiveImage.svelte";
+type ImageItem = PageData["photos"][number];
+let { data }: { data: PageData } = $props();
 
-  let viewMode = $state<'feed' | 'grid'>('feed');
-  let photos = $state<ImageItem[]>([]);
-  let loading = $state(false);
-  let hasMore = $derived(photos.length < data.total);
+let viewMode = $state<"feed" | "grid">("feed");
+let photos = $state<ImageItem[]>([]);
+let loading = $state(false);
+let hasMore = $derived(photos.length < data.total);
 
-  if (browser) {
-    const saved = localStorage.getItem('viewMode');
-    if (saved === 'feed' || saved === 'grid') {
-      viewMode = saved;
-    }
-  }
+if (browser) {
+	const saved = localStorage.getItem("viewMode");
+	if (saved === "feed" || saved === "grid") {
+		viewMode = saved;
+	}
+}
 
-  function toggleViewMode() {
-    viewMode = viewMode === 'feed' ? 'grid' : 'feed';
-    if (browser) {
-      localStorage.setItem('viewMode', viewMode);
-    }
-  }
+function toggleViewMode() {
+	viewMode = viewMode === "feed" ? "grid" : "feed";
+	if (browser) {
+		localStorage.setItem("viewMode", viewMode);
+	}
+}
 
-  $effect(() => {
-    photos = data.photos;
-  });
-  let sentinel: HTMLDivElement;
+$effect(() => {
+	photos = data.photos;
+});
+let sentinel: HTMLDivElement;
 
-  async function loadMore() {
-    if (loading || !hasMore) return;
-    loading = true;
+async function loadMore() {
+	if (loading || !hasMore) return;
+	loading = true;
 
-    try {
-      const response = await fetch(`/api/photos?offset=${photos.length}`);
-      const result = await response.json();
-      if (result.photos.length > 0) {
-        photos = [...photos, ...result.photos];
-      }
-    } catch (error) {
-      console.error("Failed to load more photos:", error);
-    } finally {
-      loading = false;
-    }
-  }
+	try {
+		const response = await fetch(`/api/photos?offset=${photos.length}`);
+		const result = await response.json();
+		if (result.photos.length > 0) {
+			photos = [...photos, ...result.photos];
+		}
+	} catch (error) {
+		console.error("Failed to load more photos:", error);
+	} finally {
+		loading = false;
+	}
+}
 
-  $effect(() => {
-    if (!sentinel) return;
+$effect(() => {
+	if (!sentinel) return;
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading) {
-          loadMore();
-        }
-      },
-      { rootMargin: "200px" },
-    );
+	const observer = new IntersectionObserver(
+		(entries) => {
+			if (entries[0].isIntersecting && hasMore && !loading) {
+				loadMore();
+			}
+		},
+		{ rootMargin: "200px" },
+	);
 
-    observer.observe(sentinel);
+	observer.observe(sentinel);
 
-    return () => observer.disconnect();
-  });
+	return () => observer.disconnect();
+});
 </script>
 
 <div class="bg-[#121113] min-h-screen text-white">
