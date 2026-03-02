@@ -3,11 +3,13 @@
     src,
     thumb,
     alt,
+    blurData,
     class: className = "",
   }: {
     src: string;
     thumb: string;
     alt: string;
+    blurData?: string;
     class?: string;
   } = $props();
 
@@ -33,6 +35,8 @@
       img.onload = null;
     };
   });
+
+  let placeholderSrc = $derived(blurData || thumb);
 </script>
 
 <div
@@ -41,7 +45,7 @@
 >
   <img
     bind:this={thumbImg}
-    src={loaded ? src : thumb}
+    src={loaded ? src : placeholderSrc}
     {alt}
     class="{className} progressive-image"
     class:progressive-loading={!loaded}

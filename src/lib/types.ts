@@ -13,6 +13,7 @@ export type ImageItem = {
 	iso: string;
 	make: string;
 	tags: string[];
+	blurData?: string;
 };
 
 export type ImageArray = {

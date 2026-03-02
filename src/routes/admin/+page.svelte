@@ -8,6 +8,7 @@
 	let selectedFile = $state<File | null>(null);
 	let previewUrl = $state<string | null>(null);
 	let thumbnailBlob = $state<Blob | null>(null);
+	let blurData = $state<string>("");
 
 	let title = $state("");
 	let date = $state("");
@@ -71,8 +72,9 @@
 			console.error("Failed to read EXIF data:", err);
 		}
 
-		// Generate thumbnail
+		// Generate thumbnail and blur placeholder
 		await generateThumbnail(file);
+		await generateBlurData(file);
 	}
 
 	async function generateThumbnail(file: File): Promise<void> {
@@ -118,6 +120,29 @@
 		});
 	}
 
+	async function generateBlurData(file: File): Promise<void> {
+		return new Promise((resolve) => {
+			const img = new Image();
+			img.onload = () => {
+				const targetWidth = 20;
+				const aspectRatio = img.height / img.width;
+				const targetHeight = Math.round(targetWidth * aspectRatio);
+
+				const canvas = document.createElement("canvas");
+				canvas.width = targetWidth;
+				canvas.height = targetHeight;
+
+				const ctx = canvas.getContext("2d");
+				if (ctx) {
+					ctx.drawImage(img, 0, 0, targetWidth, targetHeight);
+					blurData = canvas.toDataURL("image/jpeg", 0.3);
+				}
+				resolve();
+			};
+			img.src = URL.createObjectURL(file);
+		});
+	}
+
 	function handleSubmit() {
 		isLoading = true;
 	}
@@ -139,6 +164,7 @@
 			previewUrl = null;
 		}
 		thumbnailBlob = null;
+		blurData = "";
 		title = "";
 		date = "";
 		camera = "";
@@ -248,6 +274,7 @@
 							<input type="hidden" name="exposure" value={exposure} />
 							<input type="hidden" name="focalLength" value={focalLength} />
 							<input type="hidden" name="iso" value={iso} />
+							<input type="hidden" name="blur_data" value={blurData} />
 						</div>
 					</div>
 				{/if}

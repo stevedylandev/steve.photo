@@ -28,6 +28,7 @@ export const GET: RequestHandler = async ({ url, platform }) => {
     focalLength: row.focal_length as string,
     iso: row.iso as string,
     make: row.make as string,
+    blurData: row.blur_data as string,
   }));
 
   return json({ photos });

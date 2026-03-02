@@ -48,6 +48,7 @@ function handleKeydown(event) {
         class="max-w-full h-auto block"
         src={data.photo.image}
         thumb={data.photo.thumb}
+        blurData={data.photo.blurData}
         alt={data.photo.title}
       />
     </div>

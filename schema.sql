@@ -13,7 +13,8 @@ CREATE TABLE IF NOT EXISTS photos (
   focal_length TEXT,
   iso TEXT,
   make TEXT,
-  tags TEXT
+  tags TEXT,
+  blur_data TEXT
 );
 
 CREATE INDEX idx_photos_date ON photos(date DESC);

@@ -92,6 +92,7 @@
           class="max-w-full h-auto block"
           src={image.image}
           thumb={image.thumb}
+          blurData={image.blurData}
           alt={image.title}
         />
       </a>
@@ -124,6 +125,7 @@
             class="w-full h-full block"
             src={image.image}
             thumb={image.thumb}
+            blurData={image.blurData}
             alt={image.title}
           />
         </a>

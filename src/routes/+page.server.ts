@@ -31,6 +31,7 @@ export const load: PageServerLoad = async ({ platform }) => {
     focalLength: row.focal_length,
     iso: row.iso,
     make: row.make,
+    blurData: row.blur_data as string,
   }));
 
   return { photos, total, pageSize: PAGE_SIZE };

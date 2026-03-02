@@ -60,6 +60,7 @@ export const actions: Actions = {
 		const focalLength = formData.get("focalLength") as string;
 		const iso = formData.get("iso") as string;
 		const make = formData.get("make") as string;
+		const blurData = formData.get("blur_data") as string;
 
 		if (!file || !title || !date) {
 			return fail(400, { error: "File, title, and date are required" });
@@ -114,8 +115,8 @@ export const actions: Actions = {
 			// Insert into database
 			await db
 				.prepare(
-					`INSERT INTO photos (slug, title, date, image_key, thumb_key, camera, lens, aperture, exposure, focal_length, iso, make)
-					 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+					`INSERT INTO photos (slug, title, date, image_key, thumb_key, camera, lens, aperture, exposure, focal_length, iso, make, blur_data)
+					 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 				)
 				.bind(
 					slug,
@@ -130,6 +131,7 @@ export const actions: Actions = {
 					focalLength || null,
 					iso || null,
 					make || null,
+					blurData || null,
 				)
 				.run();
 

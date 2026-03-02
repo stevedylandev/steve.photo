@@ -28,6 +28,7 @@ export const load: PageServerLoad = async ({ platform, params }) => {
     iso: result.iso as string,
     make: result.make as string,
     tags: [],
+    blurData: result.blur_data as string,
   };
 
   return { photo };

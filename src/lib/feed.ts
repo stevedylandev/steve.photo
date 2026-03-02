@@ -26,6 +26,7 @@ export async function getPhotos(platform: App.Platform | undefined): Promise<Ima
     iso: row.iso as string,
     make: row.make as string,
     tags: [],
+    blurData: row.blur_data as string,
   }));
 
   return photos;
