@@ -55,7 +55,7 @@ async function handleFileSelect(event: Event) {
 		if (exif) {
 			if (exif.DateTimeOriginal) {
 				const d = new Date(exif.DateTimeOriginal);
-				date = d.toISOString().split("T")[0];
+				date = d.toISOString();
 			}
 			if (exif.Model) camera = exif.Model;
 			if (exif.LensModel) lens = exif.LensModel;
