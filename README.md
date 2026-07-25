@@ -10,7 +10,6 @@ My personal photography website built with [SvelteKit](https://svelte.dev)
 - Automatic EXIF metadata extraction (camera, lens, aperture, ISO, etc.)
 - Admin panel for uploading, editing, and deleting photos
 - RSS feed for content syndication
-- SEO optimized with dynamic OpenGraph and Twitter card metadata
 
 ## Quickstart
 
